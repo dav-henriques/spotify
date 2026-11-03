@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Single</title>
+<style>
+:root{--bg:#121212;--green:#1ed760;--muted:#a7a7a7;--tint:#2f5a3f}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;background:#000}
+body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Helvetica Neue",Arial,sans-serif;color:#fff;overflow:hidden}
+button{background:none;border:0;color:inherit;cursor:pointer;font:inherit}
+svg{display:block}
+
+.app{position:relative;width:100%;max-width:480px;height:100dvh;margin:0 auto;background:var(--bg);overflow:hidden}
+.scroll{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;padding-bottom:150px;background:linear-gradient(180deg,var(--tint) 0,var(--bg) 440px) no-repeat,var(--bg);scrollbar-width:none}
+.scroll::-webkit-scrollbar{display:none}
+.back{position:absolute;top:18px;left:20px;width:46px;height:46px;border-radius:50%;background:rgba(0,0,0,.28);display:flex;align-items:center;justify-content:center;z-index:15}
+.cover-wrap{padding:70px 0 0;display:flex;justify-content:center}
+.cover{width:68%;aspect-ratio:1;border-radius:4px;object-fit:cover;box-shadow:0 10px 40px rgba(0,0,0,.5);background:#222}
+.info{padding:0 18px}
+.title{font-size:27px;font-weight:800;margin-top:26px;letter-spacing:-.3px;word-break:break-word}
+.artists{display:flex;align-items:center;gap:10px;margin-top:14px}
+.avs{display:flex}
+.av{width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid rgba(0,0,0,.35);background:#444;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;margin-left:-12px}
+.av:first-child{margin-left:0}
+.anames{font-weight:700;font-size:14px}
+.meta{color:var(--muted);font-size:14px;margin-top:10px;font-weight:500}
+.meta b{font-weight:700}
+.actions{display:flex;align-items:center;gap:20px;margin-top:16px;height:60px}
+.thumb{width:42px;height:56px;position:relative;flex:none}
+.thumb img{position:absolute;left:0;top:0;width:40px;height:50px;object-fit:cover;border-radius:4px;border:2px solid #bbb;background:#222;z-index:2}
+.thumb:after{content:"";position:absolute;left:10px;top:3px;width:36px;height:46px;border-radius:4px;background:#555;z-index:1}
+.ic{width:30px;height:30px;display:flex;align-items:center;justify-content:center;color:#b3b3b3}
+.ic.on{color:var(--green)}
+.sp{flex:1}
+.play{width:58px;height:58px;border-radius:50%;background:var(--green);display:flex;align-items:center;justify-content:center;color:#000;transition:transform .1s}
+.play:active{transform:scale(.94)}
+
+.tracks{margin-top:22px}
+.track{display:flex;align-items:center;gap:12px;padding:10px 18px;cursor:pointer}
+.track:active{background:rgba(255,255,255,.06)}
+.tt{flex:1;min-width:0}
+.tname{font-size:17px;font-weight:500;display:flex;align-items:center;gap:8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tname.cur{color:var(--green)}
+.tsub{display:flex;align-items:center;gap:6px;color:var(--muted);font-size:14px;margin-top:4px;white-space:nowrap}
+.tsub span{overflow:hidden;text-overflow:ellipsis}
+.E{background:#b3b3b3;color:#121212;font-size:11px;font-weight:800;width:16px;height:16px;border-radius:2px;display:flex;align-items:center;justify-content:center;flex:none}
+.eq{display:flex;gap:2px;align-items:flex-end;height:12px;flex:none}
+.eq i{width:3px;background:var(--green);height:4px;border-radius:1px}
+.eq.run i{animation:eq .9s infinite ease-in-out}
+.eq i:nth-child(2){animation-delay:.25s!important}.eq i:nth-child(3){animation-delay:.5s!important}
+@keyframes eq{0%,100%{height:3px}50%{height:12px}}
+.count{padding:22px 18px 0;color:var(--muted);font-size:14px;font-weight:500}
+.rel h2{font-size:22px;font-weight:800;padding:40px 18px 14px}
+.row{display:flex;gap:12px;padding:0 18px;overflow-x:auto;scrollbar-width:none}
+.row::-webkit-scrollbar{display:none}
+.card{flex:none;width:146px}
+.card .im{width:146px;height:146px;border-radius:6px;object-fit:cover;background:#333}
+.card p{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.3;font-weight:500}
+.card p b{color:#fff;display:block;font-size:14px}
+
+.mini{position:absolute;left:8px;right:8px;bottom:84px;height:58px;border-radius:8px;background:var(--tint);filter:brightness(.9) saturate(1.1);display:flex;align-items:center;gap:12px;padding:0 14px 0 10px;z-index:30;transition:transform .25s,opacity .25s}
+.mini.hide{transform:translateY(20px);opacity:0;pointer-events:none}
+.mini img{width:42px;height:42px;border-radius:4px;object-fit:cover}
+.mini .mt{flex:1;min-width:0;font-size:14px}
+.mini .mt b{display:block;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mini .mt span{color:rgba(255,255,255,.65);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block;font-size:13px}
+.bar{position:absolute;left:10px;right:10px;bottom:0;height:3px;background:rgba(255,255,255,.25);border-radius:2px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:#fff}
+.nav{position:absolute;left:0;right:0;bottom:0;height:84px;background:linear-gradient(180deg,rgba(18,18,18,.92),#121212 40%);display:flex;justify-content:space-around;padding-top:12px;z-index:25}
+.nav button{display:flex;flex-direction:column;align-items:center;gap:6px;color:#a7a7a7;font-size:12px;font-weight:500;width:80px}
+.nav button.act{color:#fff}
+.toast{position:absolute;left:50%;bottom:160px;transform:translate(-50%,10px);background:#fff;color:#000;font-weight:600;font-size:14px;padding:10px 16px;border-radius:8px;opacity:0;transition:.25s;z-index:60;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+</style>
+</head>
+<body>
+
+<div class="app">
+  <button class="back" id="back"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.600" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+
+  <div class="scroll" id="scroll">
+    <div class="cover-wrap"><img class="cover" id="cover" alt=""></div>
+    <div class="info">
+      <h1 class="title" id="title"></h1>
+      <div class="artists"><div class="avs" id="avs"></div><div class="anames" id="anames"></div></div>
+      <div class="meta" id="meta"></div>
+      <div class="actions">
+        <div class="thumb"><img id="thumb" alt=""></div>
+        <button class="ic" id="addBtn" aria-label="Add"></button>
+        <button class="ic" id="dlBtn" aria-label="Download"></button>
+        <button class="ic" id="moreBtn" aria-label="More"><svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.800"/><circle cx="12" cy="12" r="1.800"/><circle cx="19" cy="12" r="1.800"/></svg></button>
+        <span class="sp"></span>
+        <button class="ic" id="shufBtn" aria-label="Shuffle"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5"/></svg></button>
+        <button class="play" id="bigPlay" aria-label="Play"></button>
+      </div>
+    </div>
+    <div class="tracks" id="tracks"></div>
+    <div class="count" id="count"></div>
+    <div class="rel"><h2>You might also like</h2><div class="row" id="related"></div></div>
+  </div>
+
+  <div class="mini hide" id="mini">
+    <img id="miniImg" alt="">
+    <div class="mt"><b id="miniT"></b><span id="miniA"></span></div>
+    <button class="ic" style="color:#fff" aria-label="Devices"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linejoin="round"><rect x="2" y="6" width="10" height="15" rx="2"/><rect x="14" y="3" width="8" height="18" rx="2"/><circle cx="18" cy="15" r="2"/><path d="M4 3h6"/></svg></button>
+    <button class="ic" id="miniLike"></button>
+    <button class="ic" id="miniPlay" style="color:#fff"></button>
+    <div class="bar"><i id="barFill"></i></div>
+  </div>
+
+  <nav class="nav">
+    <button><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M4 10.500 12 4l8 6.500V20h-5v-6H9v6H4z"/></svg>Home</button>
+    <button class="act"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.600" stroke-linecap="round"><circle cx="10.500" cy="10.500" r="6.500"/><path d="m16 16 5 5"/></svg>Search</button>
+    <button><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4v16M9 4v16M14.500 6l5 13"/></svg>Your Library</button>
+    <button><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 4v16M4 12h16"/></svg>Create</button>
+  </nav>
+  <div class="toast" id="toast"></div>
+</div>
+
+<script>
+/* =====================================================================
+   EDITE AQUI  —  tudo do single fica neste objeto
+   Imagens e áudios: coloque os arquivos na mesma pasta deste HTML
+   (ou use um caminho/URL). Deixe "" para usar o padrão.
+   ===================================================================== */
+const CONFIG = {
+  titulo: "Título do Single",
+  tipo: "Single",                 // Single | EP | Album ...
+  data: "25 Sep",                 // texto exatamente como aparece na tela
+  latestRelease: true,            // mostra "Latest release"
+
+  capa: "",                       // ex: "capa.jpg"
+  corFundo: "auto",               // "auto" = tira da capa | ou uma cor: "#2f5a3f"
+
+  // Os 2 primeiros nomes aparecem na linha; os 3 primeiros viram avatar;
+  // o resto entra em "+ N others".
+  pessoas: [
+    { nome: "Seu Nome",      foto: "" },   // ex: foto: "eu.jpg"
+    { nome: "Feat. Artista", foto: "" },
+    { nome: "Produtor",      foto: "" },
+  ],
+
+  musicas: [
+    {
+      titulo: "Título do Single",
+      artistas: "Seu Nome, Feat. Artista, Produtor",  // linha cinza embaixo do título
+      explicit: true,                                  // mostra o "E"
+      duracao: "2:15",                                 // usado só se não houver áudio
+      audio: "",                                       // ex: "musica.mp3" (duração é lida sozinha)
+    },
+    // { titulo: "Outra faixa", artistas: "Seu Nome", explicit: false, duracao: "3:02", audio: "faixa2.mp3" },
+  ],
+
+  // Cards de "You might also like"
+  parecidos: [
+    { titulo: "Another Single", sub: "Artista Exemplo",     img: "" },
+    { titulo: "Late Night",     sub: "Outro Artista",       img: "" },
+    { titulo: "Sem Nome",       sub: "Mais um Artista",     img: "" },
+  ],
+};
+/* ===================================================================== */
+
+(function(){
+"use strict";
+const $=s=>document.querySelector(s);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const secs=d=>{const p=String(d||"0:00").split(":").map(Number);return p.length===2?(p[0]||0)*60+(p[1]||0):(p[0]||0)};
+const fmt=s=>Math.floor(s/60)+":"+String(Math.floor(s%60)).padStart(2,"0");
+const C=CONFIG, T=C.musicas;
+
+function ph(c1,c2,label){
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="600" height="600"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect width="600" height="600" fill="url(#g)"/><circle cx="300" cy="300" r="170" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="6"/><circle cx="300" cy="300" r="40" fill="rgba(255,255,255,.55)"/><text x="300" y="545" font-family="Arial" font-size="34" font-weight="700" fill="rgba(255,255,255,.7)" text-anchor="middle">${label||""}</text></svg>`;
+  return "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(svg);
+}
+const PH_COVER=ph("#2e7d4f","#0b2a1a","");
+const cover=()=>C.capa||PH_COVER;
+
+const state={cur:0,playing:false,pos:0,liked:{},added:false,dl:false,shuffle:false,started:false};
+const audio=new Audio();audio.preload="metadata";
+let timer=null;
+
+function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(toast.t);toast.t=setTimeout(()=>t.classList.remove("show"),1600)}
+
+const I={
+ plus:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800"><circle cx="12" cy="12" r="10"/><path d="M12 7v10M7 12h10" stroke-linecap="round"/></svg>',
+ check:'<svg width="30" height="30" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#1ed760"/><path d="m7.500 12.500 3 3 6-6.500" fill="none" stroke="#000" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ dl:'<svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.800" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 7v8M8.500 12l3.500 3.500 3.500-3.500"/></svg>',
+ dlOn:'<svg width="30" height="30" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="#1ed760"/><path d="M12 7v8M8.500 12l3.500 3.500 3.500-3.500" fill="none" stroke="#000" stroke-width="2.200" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+ play:'<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.200v13.600a1 1 0 0 0 1.500.9l11-6.800a1 1 0 0 0 0-1.800l-11-6.800A1 1 0 0 0 8 5.200z"/></svg>',
+ pause:'<svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor"><rect x="5.500" y="4" width="4.500" height="16" rx="1"/><rect x="14" y="4" width="4.500" height="16" rx="1"/></svg>',
+ dots:'<svg width="26" height="26" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.800"/><circle cx="12" cy="12" r="1.800"/><circle cx="19" cy="12" r="1.800"/></svg>'
+};
+
+/* cor de fundo */
+function tint(){
+  const root=document.documentElement.style;
+  if(C.corFundo&&C.corFundo!=="auto"){root.setProperty("--tint",C.corFundo);return}
+  const im=new Image();
+  im.onload=()=>{
+    try{
+      const c=document.createElement("canvas");c.width=c.height=24;
+      const x=c.getContext("2d");x.drawImage(im,0,0,24,24);
+      const d=x.getImageData(0,0,24,24).data;let r=0,g=0,b=0,n=0;
+      for(let i=0;i<d.length;i+=4){r+=d[i];g+=d[i+1];b+=d[i+2];n++}
+      r/=n;g/=n;b/=n;
+      const k=Math.min(1,150/Math.max(r,g,b,1));
+      const f=v=>Math.round(Math.min(255,v*k*.9));
+      root.setProperty("--tint",`rgb(${f(r)},${f(g)},${f(b)})`);
+    }catch(e){/* abrindo via file:// o navegador bloqueia; use corFundo manual */}
+  };
+  im.src=cover();
+}
+
+function namesLine(){
+  const n=C.pessoas.map(a=>a.nome).filter(Boolean);
+  const extra=n.length-2;
+  return n.slice(0,2).join(" • ")+(extra>0?` + ${extra} other${extra>1?"s":""}`:"");
+}
+
+function render(){
+  const cs=cover();
+  [["#cover"],["#thumb"],["#miniImg"]].forEach(([s])=>{const el=$(s);el.src=cs;el.onerror=()=>{el.onerror=null;el.src=PH_COVER}});
+  tint();
+  document.title=C.titulo+" • "+C.tipo;
+  $("#title").textContent=C.titulo;
+  $("#avs").innerHTML=C.pessoas.slice(0,3).map((a,i)=>{
+    const ini=`<div class="av" style="background:${["#7a4b2a","#4a4f58","#9a7b5a"][i%3]}">${esc((a.nome||"?")[0].toUpperCase())}</div>`;
+    return a.foto?`<img class="av" src="${esc(a.foto)}" alt="" onerror="this.outerHTML=decodeURIComponent('${encodeURIComponent(ini)}')">`:ini;
+  }).join("");
+  $("#anames").textContent=namesLine();
+  $("#meta").innerHTML=`${esc(C.tipo)} • ${esc(C.data)}${C.latestRelease?' • <b>Latest release</b>':""}`;
+  $("#addBtn").innerHTML=state.added?I.check:I.plus;
+  $("#dlBtn").innerHTML=state.dl?I.dlOn:I.dl;
+  $("#shufBtn").classList.toggle("on",state.shuffle);
+  renderTracks();
+  renderCount();
+  $("#related").innerHTML=C.parecidos.map((r,i)=>{
+    const fb=ph(["#6b4f2a","#3a3a6b","#6b2a4f"][i%3],"#111",esc(r.titulo));
+    return `<div class="card"><img class="im" src="${esc(r.img||fb)}" alt="" onerror="this.onerror=null;this.src='${fb}'"><p><b>${esc(r.titulo)}</b>${esc(r.sub)}</p></div>`;
+  }).join("");
+  paintPlayer();
+}
+function renderCount(){
+  const total=T.reduce((a,t)=>a+secs(t.duracao),0);
+  $("#count").textContent=`${T.length} song${T.length!==1?"s":""} • ${Math.max(1,Math.round(total/60))}min`;
+}
+function renderTracks(){
+  $("#tracks").innerHTML=T.map((t,i)=>{
+    const cur=state.started&&state.cur===i;
+    return `<div class="track" data-i="${i}">
+      <div class="tt"><div class="tname ${cur?"cur":""}">${cur?'<span class="eq '+(state.playing?"run":"")+'"><i></i><i></i><i></i></span>':""}<span>${esc(t.titulo)}</span></div>
+      <div class="tsub">${t.explicit?'<span class="E">E</span>':""}<span>${esc(t.artistas)}</span></div></div>
+      <button class="ic like" data-i="${i}">${state.liked[i]!==false?I.check:I.plus}</button>
+      <button class="ic">${I.dots}</button></div>`;
+  }).join("");
+}
+function paintPlayer(){
+  const t=T[state.cur]||T[0];if(!t)return;
+  $("#bigPlay").innerHTML=state.playing?I.pause:I.play;
+  $("#miniPlay").innerHTML=state.playing?I.pause:I.play;
+  $("#miniT").textContent=t.titulo;$("#miniA").textContent=t.artistas;
+  $("#miniLike").innerHTML=state.liked[state.cur]!==false?I.check:I.plus;
+  $("#mini").classList.toggle("hide",!state.started);
+}
+function paintBar(){
+  const t=T[state.cur];if(!t)return;
+  const real=t.audio&&isFinite(audio.duration);
+  const d=real?audio.duration:(secs(t.duracao)||1);
+  const p=t.audio?audio.currentTime:state.pos;
+  $("#barFill").style.width=Math.min(100,p/d*100)+"%";
+}
+
+/* duração real a partir dos arquivos de áudio */
+T.forEach(t=>{
+  if(!t.audio)return;
+  const a=new Audio();a.preload="metadata";
+  a.onloadedmetadata=()=>{if(isFinite(a.duration)){t.duracao=fmt(a.duration);renderCount()}};
+  a.src=t.audio;
+});
+
+function loadTrack(i){
+  state.cur=i;state.pos=0;
+  const t=T[i];
+  if(t&&t.audio){audio.src=t.audio}else{audio.removeAttribute("src");audio.load()}
+}
+function play(){
+  if(!T.length)return;
+  state.started=true;state.playing=true;
+  const t=T[state.cur];
+  if(t.audio){audio.play().catch(()=>toast("Não achei o arquivo de áudio"))}
+  clearInterval(timer);
+  timer=setInterval(()=>{
+    const t=T[state.cur];
+    if(!t.audio){state.pos+=.25;if(state.pos>=secs(t.duracao))ended()}
+    paintBar();
+  },250);
+  renderTracks();paintPlayer();
+}
+function pause(){state.playing=false;audio.pause();clearInterval(timer);renderTracks();paintPlayer()}
+function ended(){
+  const n=state.shuffle?Math.floor(Math.random()*T.length):state.cur+1;
+  if(n<T.length){loadTrack(n);play()}
+  else{pause();loadTrack(0);paintBar()}
+}
+audio.addEventListener("ended",ended);
+const toggle=()=>state.playing?pause():play();
+
+$("#bigPlay").onclick=toggle;
+$("#miniPlay").onclick=toggle;
+$("#miniLike").onclick=()=>{state.liked[state.cur]=state.liked[state.cur]===false;toast(state.liked[state.cur]!==false?"Added to Liked Songs":"Removed from Liked Songs");render()};
+$("#addBtn").onclick=()=>{state.added=!state.added;toast(state.added?"Added to Your Library":"Removed from Your Library");render()};
+$("#dlBtn").onclick=()=>{state.dl=!state.dl;toast(state.dl?"Downloaded":"Download removed");render()};
+$("#moreBtn").onclick=()=>toast("More options");
+$("#back").onclick=()=>$("#scroll").scrollTo({top:0,behavior:"smooth"});
+$("#shufBtn").onclick=()=>{state.shuffle=!state.shuffle;toast(state.shuffle?"Shuffle on":"Shuffle off");render()};
+$("#tracks").onclick=e=>{
+  const like=e.target.closest(".like");
+  if(like){const i=+like.dataset.i;state.liked[i]=state.liked[i]===false;toast(state.liked[i]!==false?"Added to Liked Songs":"Removed from Liked Songs");render();return}
+  if(e.target.closest(".ic"))return toast("More options");
+  const r=e.target.closest(".track");if(!r)return;
+  const i=+r.dataset.i;
+  if(state.started&&state.cur===i){toggle()}else{loadTrack(i);play()}
+};
+
+render();
+})();
+</script>
+</body>
+</html>
